@@ -36,7 +36,7 @@ class Router {
      * Handle route changes
      */
     handleRoute() {
-        const hash = window.location.hash.slice(1) || 'onboarding';
+        const hash = window.location.hash.slice(1);
         const [path, queryString] = hash.split('?');
         const params = new URLSearchParams(queryString);
 

@@ -6,6 +6,7 @@ import './index.css';
 import { router } from './router.js';
 import { getIdentity, saveIdentity, getRecoveryCodes } from './utils/storage.js';
 import { createIdentity, hashRecoveryCodes } from './utils/crypto.js';
+import { initNetwork } from './utils/network.js';
 
 // Import components
 import { Onboarding } from './components/Onboarding.js';
@@ -15,6 +16,16 @@ import { ContactList } from './components/ContactList.js';
 import { ChatView } from './components/ChatView.js';
 import { AddContact } from './components/AddContact.js';
 import { Settings } from './components/Settings.js';
+
+// Register routes immediately to prevent race conditions
+router.register('', ContactList); // Root is now ContactList
+router.register('onboarding', Onboarding);
+router.register('recovery-setup', RecoverySetup);
+router.register('account-recovery', AccountRecovery);
+// router.register('contacts', ContactList); // Removed
+router.register('chat', ChatView);
+router.register('add-contact', AddContact);
+router.register('settings', Settings);
 
 /**
  * Initialize the application
@@ -50,20 +61,23 @@ async function initApp() {
       if (!recoveryCodes && !hash.includes('recovery-setup')) {
         // No recovery codes set - redirect to setup
         window.location.hash = `#recovery-setup?publicId=${identity.publicId}`;
-      } else if (!hash || hash === '#onboarding') {
-        // Default to contacts
-        window.location.hash = '#contacts';
+      } else if (hash === '#onboarding' || hash === '#contacts') {
+        // Redirect outdated routes to root
+        window.location.hash = '';
       }
     }
 
-    // Register routes
-    router.register('onboarding', Onboarding);
-    router.register('recovery-setup', RecoverySetup);
-    router.register('account-recovery', AccountRecovery);
-    router.register('contacts', ContactList);
-    router.register('chat', ChatView);
-    router.register('add-contact', AddContact);
-    router.register('settings', Settings);
+    // Initialize Network
+    // We pass a simple handler for global toasts if needed, but ChatView will handle its own updates
+    if (identity) {
+      initNetwork((senderId, data) => {
+        console.log('New message received from', senderId);
+        // Dispatch a custom event so active views can react
+        window.dispatchEvent(new CustomEvent('message-received', {
+          detail: { senderId, data }
+        }));
+      });
+    }
 
     // Register service worker (disabled in dev to avoid MIME type errors)
     // Uncomment for production build

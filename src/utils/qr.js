@@ -19,8 +19,8 @@ export async function generateQRCode(publicId, canvas) {
             width: 300,
             margin: 2,
             color: {
-                dark: '#6366f1',
-                light: '#1a1a2e',
+                dark: '#000000',
+                light: '#ffffff',
             },
         });
     } catch (error) {
@@ -37,11 +37,12 @@ export async function generateQRCode(publicId, canvas) {
 export async function generateQRCodeDataURL(publicId) {
     try {
         return await QRCode.toDataURL(publicId, {
-            width: 300,
-            margin: 2,
+            width: 400, // Larger
+            margin: 4, // More quiet zone
+            errorCorrectionLevel: 'H', // High error correction
             color: {
-                dark: '#6366f1',
-                light: '#1a1a2e',
+                dark: '#000000', // High contrast
+                light: '#ffffff',
             },
         });
     } catch (error) {
@@ -59,25 +60,32 @@ export async function generateQRCodeDataURL(publicId) {
  */
 export async function initQRScanner(elementId, onSuccess, onError) {
     try {
+        if (qrScanner) {
+            await stopQRScanner();
+        }
+
         qrScanner = new Html5Qrcode(elementId);
 
         const config = {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
+            fps: 20, // Increased FPS
+            // qrbox: { width: 250, height: 250 }, // Removed fixed box to scan full feed
             aspectRatio: 1.0,
+            verbose: true, // Enable library verbose logging
+            experimentalFeatures: {
+                useBarCodeDetectorIfSupported: true
+            }
         };
 
         await qrScanner.start(
             { facingMode: 'environment' },
             config,
             (decodedText) => {
+                console.log('QR Code scanned successfully:', decodedText);
                 onSuccess(decodedText);
             },
             (errorMessage) => {
                 // Ignore frequent scanning errors
-                if (!errorMessage.includes('NotFoundException')) {
-                    console.warn('QR scan error:', errorMessage);
-                }
+                // console.log('Scanning...', errorMessage); 
             }
         );
 
@@ -96,10 +104,15 @@ export async function initQRScanner(elementId, onSuccess, onError) {
 export async function stopQRScanner() {
     if (qrScanner) {
         try {
-            await qrScanner.stop();
+            if (qrScanner.isScanning) {
+                await qrScanner.stop();
+            }
+            await qrScanner.clear();
             qrScanner = null;
         } catch (error) {
             console.error('Error stopping QR scanner:', error);
+            // Force cleanup
+            qrScanner = null;
         }
     }
 }

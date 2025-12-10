@@ -21,7 +21,7 @@ export class Settings {
 
     render() {
         this.container.innerHTML = `
-      <div class="h-full flex flex-col bg-dark-900">
+      <div class="h-screen max-h-[100dvh] flex flex-col bg-dark-900 overflow-hidden">
         <!-- Header -->
         <div class="px-6 py-4 flex items-center gap-4 border-b border-white/10 glass sticky top-0 z-10">
           <button class="p-2 -ml-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors back-btn">
@@ -188,10 +188,7 @@ export class Settings {
     setupEventListeners() {
         // Back button
         const backBtn = this.container.querySelector('.back-btn');
-        backBtn.addEventListener('click', () => {
-            window.location.hash = '#contacts';
-        });
-
+        backBtn.addEventListener('click', () => window.location.hash = '');
         // Save Name button
         const saveNameBtn = this.container.querySelector('.save-name-btn');
         saveNameBtn.addEventListener('click', () => this.saveDisplayName());

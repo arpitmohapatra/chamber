@@ -33,6 +33,16 @@
     border-color: var(--color-gray-200);
   }
 
+  html,
+  body,
+  #app {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* Prevent native scroll */
+  }
+
   body {
     background-color: var(--color-dark-900);
     color: white;

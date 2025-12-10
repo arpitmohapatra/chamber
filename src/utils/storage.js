@@ -47,6 +47,12 @@ async function getDB() {
             if (!db.objectStoreNames.contains('keys')) {
                 db.createObjectStore('keys', { keyPath: 'contactId' });
             }
+
+            // Offline Queue store
+            if (!db.objectStoreNames.contains('offline_queue')) {
+                const queueStore = db.createObjectStore('offline_queue', { keyPath: 'id', autoIncrement: true });
+                queueStore.createIndex('contactId', 'contactId');
+            }
         },
     });
 
@@ -229,40 +235,79 @@ export async function getMessages(contactId) {
 }
 
 /**
- * Delete a message
+ * Delete all messages for a contact
  */
-export async function deleteMessage(messageId) {
+export async function clearMessages(contactId) {
     const db = await getDB();
-    const message = await db.get('messages', messageId);
+    const messages = await db.getAllFromIndex('messages', 'contactId', contactId);
 
-    if (message && message.imageId) {
-        await db.delete('images', message.imageId);
+    for (const message of messages) {
+        await db.delete('messages', message.id);
+        if (message.imageId) {
+            await db.delete('images', message.imageId);
+        }
     }
-
-    await db.delete('messages', messageId);
 }
 
-// ===== IMAGE MANAGEMENT =====
+// ===== ATTACHMENT MANAGEMENT =====
 
 /**
- * Save an encrypted image
+ * Save an encrypted attachment (image, audio, file)
+ * Replaces older saveImage but keeps backward compatibility if needed
  */
-export async function saveImage(blob, iv) {
+export async function saveAttachment(blob, iv, type = 'image') {
     const db = await getDB();
 
     return await db.add('images', {
         blob,
-        iv: Array.from(iv), // Convert Uint8Array to regular array for storage
+        iv: Array.from(iv),
+        type,
         createdAt: Date.now(),
     });
 }
 
 /**
- * Get an image
+ * Get an attachment
  */
-export async function getImage(imageId) {
+export async function getAttachment(id) {
     const db = await getDB();
-    return await db.get('images', imageId);
+    return await db.get('images', id);
+}
+
+/**
+ * Legacy support for getImage
+ */
+export const getImage = getAttachment;
+export const saveImage = saveAttachment;
+
+// ===== OFFLINE QUEUE MANAGEMENT =====
+
+/**
+ * Queue a message for offline delivery
+ */
+export async function queueMessage(contactId, messageData) {
+    const db = await getDB();
+    await db.add('offline_queue', {
+        contactId,
+        messageData,
+        timestamp: Date.now()
+    });
+}
+
+/**
+ * Get queued messages for a contact
+ */
+export async function getQueuedMessages(contactId) {
+    const db = await getDB();
+    return await db.getAllFromIndex('offline_queue', 'contactId', contactId);
+}
+
+/**
+ * Remove a queued message
+ */
+export async function removeQueuedMessage(id) {
+    const db = await getDB();
+    await db.delete('offline_queue', id);
 }
 
 // ===== KEY MANAGEMENT =====

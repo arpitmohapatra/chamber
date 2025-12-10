@@ -144,7 +144,7 @@ export class RecoverySetup {
     continueBtn.addEventListener('click', () => {
       // Clear temp codes for security
       sessionStorage.removeItem('TEMP_RECOVERY_CODES');
-      window.location.hash = '#contacts';
+      window.location.hash = '';
     });
 
     // Copy codes

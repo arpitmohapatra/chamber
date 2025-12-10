@@ -14,7 +14,7 @@ export class ContactList {
 
     render() {
         this.container.innerHTML = `
-      <div class="h-full flex flex-col bg-dark-900">
+      <div class="h-screen max-h-[100dvh] flex flex-col bg-dark-900 overflow-hidden">
         <!-- Header -->
         <div class="px-6 py-4 flex items-center justify-between border-b border-white/10 glass sticky top-0 z-10">
           <h2 class="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Messages</h2>

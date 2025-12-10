@@ -168,6 +168,15 @@ export class AddContact {
 
             this.isScanning = true;
 
+            // Wait a moment for the DOM to update and element to be visible
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const element = document.getElementById('qr-reader');
+            if (!element || element.offsetWidth === 0) {
+                // Try again after a short delay if still not visible
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
             await initQRScanner(
                 'qr-reader',
                 (decodedText) => this.handleQRScan(decodedText),
@@ -175,8 +184,10 @@ export class AddContact {
             );
 
             const cancelBtn = this.container.querySelector('.cancel-scan-btn');
-            cancelBtn.classList.remove('hidden');
-            cancelBtn.addEventListener('click', () => this.stopScanning());
+            if (cancelBtn) {
+                cancelBtn.classList.remove('hidden');
+                cancelBtn.onclick = () => this.stopScanning();
+            }
 
             // Show overlay for effect
             const overlay = this.container.querySelector('.scanner-overlay');
