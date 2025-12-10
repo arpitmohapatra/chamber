@@ -216,7 +216,7 @@ Minimum version required to store current data is: `+$+`.
         <div class="text-xs text-gray-500 mb-1">${c+1}</div>
         <code class="text-sm font-mono text-primary-400">${o}</code>
       </div>
-    `).join("")}setupEventListeners(){const s=this.container.querySelector("#confirm-saved"),o=this.container.querySelector(".continue-btn");s.addEventListener("change",()=>{o.disabled=!s.checked}),o.addEventListener("click",()=>{sessionStorage.removeItem("TEMP_RECOVERY_CODES"),window.location.hash="#contacts"}),this.container.querySelector(".copy-codes-btn").addEventListener("click",()=>this.copyCodes()),this.container.querySelector(".download-codes-btn").addEventListener("click",()=>this.downloadCodes())}async copyCodes(){const s=this.recoveryCodes.map((o,c)=>`${c+1}. ${o}`).join(`
+    `).join("")}setupEventListeners(){const s=this.container.querySelector("#confirm-saved"),o=this.container.querySelector(".continue-btn");s.addEventListener("change",()=>{o.disabled=!s.checked}),o.addEventListener("click",()=>{sessionStorage.removeItem("TEMP_RECOVERY_CODES"),window.location.hash=""}),this.container.querySelector(".copy-codes-btn").addEventListener("click",()=>this.copyCodes()),this.container.querySelector(".download-codes-btn").addEventListener("click",()=>this.downloadCodes())}async copyCodes(){const s=this.recoveryCodes.map((o,c)=>`${c+1}. ${o}`).join(`
 `);try{await navigator.clipboard.writeText(s);const o=this.container.querySelector(".copy-codes-btn"),c=o.innerHTML;o.innerHTML=`
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
