@@ -64,14 +64,20 @@ function handleConnection(conn) {
     // Store connection
     connections.set(peerId, conn);
 
-    conn.on('open', () => {
-        console.log('Connection opened with:', peerId);
+    const onOpen = () => {
+        console.log('Connection opened/active with:', peerId);
         // Replay any queued messages for this peer
         replayQueuedMessages(peerId);
 
         // Notify UI
         window.dispatchEvent(new CustomEvent('peer-connected', { detail: { peerId } }));
-    });
+    };
+
+    if (conn.open) {
+        onOpen();
+    } else {
+        conn.on('open', onOpen);
+    }
 
     conn.on('data', async (data) => {
         console.log('Received data:', data);
@@ -91,7 +97,7 @@ function handleConnection(conn) {
 
     conn.on('error', (err) => {
         console.error('Connection error:', err);
-        connections.delete(peerId);
+        connections.delete(peerId); // clean up
         window.dispatchEvent(new CustomEvent('peer-disconnected', { detail: { peerId } }));
     });
 }

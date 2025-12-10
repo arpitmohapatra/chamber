@@ -57,7 +57,10 @@ export class ChatView {
               </svg>
             </button>
             <div>
-              <h3 class="font-bold text-white contact-name">Loading...</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="font-bold text-white contact-name">Loading...</h3>
+                <div class="header-status-dot w-2 h-2 rounded-full bg-gray-500 transition-colors"></div>
+              </div>
               <p class="text-xs text-gray-400 contact-id font-mono truncate max-w-[150px]"></p>
             </div>
           </div>
@@ -418,22 +421,41 @@ export class ChatView {
 
     updateStatus() {
         const isOnline = isPeerConnected(this.contactId);
+
+        // Modal Update
         const modal = this.container.querySelector('#contact-modal');
         const indicator = modal.querySelector('.status-indicator');
         const text = modal.querySelector('.status-text');
 
+        // Header Update
+        const headerDot = this.container.querySelector('.header-status-dot');
+
         if (isOnline) {
+            // Modal
             indicator.classList.remove('bg-gray-500');
             indicator.classList.add('bg-green-500', 'shadow-glow');
             text.textContent = 'Online';
             text.classList.remove('text-gray-400');
             text.classList.add('text-green-400');
+
+            // Header
+            if (headerDot) {
+                headerDot.classList.remove('bg-gray-500');
+                headerDot.classList.add('bg-green-500', 'shadow-glow');
+            }
         } else {
+            // Modal
             indicator.classList.remove('bg-green-500', 'shadow-glow');
             indicator.classList.add('bg-gray-500');
             text.textContent = 'Offline';
             text.classList.remove('text-green-400');
             text.classList.add('text-gray-400');
+
+            // Header
+            if (headerDot) {
+                headerDot.classList.remove('bg-green-500', 'shadow-glow');
+                headerDot.classList.add('bg-gray-500');
+            }
         }
     }
 
